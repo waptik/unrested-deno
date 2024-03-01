@@ -7,8 +7,17 @@ This module was extracted from
 [`netzo/client-api`](https://github.com/netzo/netzo/blob/main/lib/integrations/create-api)
 without `oauth2` authorization, to make it more modular.
 
+It exports 3 useful utility functions from
+`https://deno.land/x/unrested/mod.ts`:
+
+1. `createApi`: used to create an api client for the service you're using. A
+   `baseUrl` parameter option is required.
+1. `auth`: used to set authorization credentials of the api service you're
+   using.
+1. `paginate`: used for paginating between query results.
+
 ```ts
-import { createApi } from "https://deno.land/x/unrested@0.0.1/mod.ts";
+import { createApi } from "https://deno.land/x/unrested@0.0.2/mod.ts";
 
 const api = await createApi({
   baseURL: "https://jsonplaceholder.typicode.com",
