@@ -1,16 +1,76 @@
-import { $fetch, type FetchOptions } from "https://esm.sh/v135/ofetch@1.1.1";
+import {
+  $fetch,
+  FetchContext,
+  type FetchOptions,
+} from "https://esm.sh/v135/ofetch@1.1.1";
 import {
   type QueryObject,
   resolveURL,
   withQuery,
 } from "https://esm.sh/v135/ufo@1.2.0";
-import type {
-  ApiClient,
-  ApiMethodHandler,
-  ApiMethodHandlerGET,
-  ResponseType,
-} from "./types.ts";
-import { headersToObject } from "./utils.ts";
+
+export type { FetchContext, FetchOptions };
+
+export type ResponseMap = {
+  blob: Blob;
+  text: string;
+  arrayBuffer: ArrayBuffer;
+};
+
+export type ResponseType = keyof ResponseMap | "json";
+export type MappedType<R extends ResponseType, JsonType = unknown> = R extends
+  keyof ResponseMap ? ResponseMap[R] : JsonType;
+
+export type ApiMethodHandlerGET<Query = QueryObject> = <
+  T = unknown,
+  R extends ResponseType = "json",
+>(
+  query?: Query,
+  options?: Omit<FetchOptions<R>, "baseURL" | "method">,
+) => Promise<MappedType<R, T>>;
+
+export type ApiMethodHandler<Data = never, Query = QueryObject> = <
+  T = unknown,
+  R extends ResponseType = "json",
+>(
+  data?: Data,
+  query?: Query,
+  options?: Omit<FetchOptions<R>, "baseURL" | "method">,
+) => Promise<MappedType<R, T>>;
+
+export type ApiClient = {
+  [key: string]: ApiClient;
+  (...segmentsOrIds: (string | number)[]): ApiClient;
+} & {
+  get: ApiMethodHandlerGET<FetchOptions["query"]>;
+  post: ApiMethodHandler<FetchOptions["body"], FetchOptions["query"]>;
+  put: ApiMethodHandler<FetchOptions["body"], FetchOptions["query"]>;
+  patch: ApiMethodHandler<FetchOptions["body"], FetchOptions["query"]>;
+  delete: ApiMethodHandler<FetchOptions["body"], FetchOptions["query"]>;
+};
+
+export function headersToObject(headers: HeadersInit = {}) {
+  // SSR compatibility for `Headers` prototype
+  if (typeof Headers !== "undefined" && headers instanceof Headers) {
+    return Object.fromEntries([...(headers as Headers).entries()]);
+  }
+
+  if (Array.isArray(headers)) {
+    return Object.fromEntries(headers);
+  }
+
+  return headers;
+}
+
+/**
+ * Simple heuristic to check if a client is an API client
+ * @param client {Record<string, unknown>} - the object to check
+ * @returns {boolean} - true if the object is an API client
+ */
+export const isApiClient = (client: Record<string, unknown>) => {
+  const METHODS = ["get", "post", "put", "patch", "delete"];
+  return METHODS.some((method: string) => client[method]);
+};
 
 const payloadMethods: ReadonlyArray<string> = [
   "POST",

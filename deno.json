@@ -1,8 +1,9 @@
 {
   "tasks": {
-    "dev": "deno run --watch main.ts"
+    "check": "deno check mod.ts *.ts",
+    "test": "deno test --allow-write --allow-read --allow-net --trace-ops",
+    "bench": "deno bench",
+    "prep": "deno task check && deno fmt && deno lint && deno publish --dry-run && deno task test"
   },
-  "imports": {
-    "@std/": "https://deno.land/std@0.217.0/"
-  }
+  "lock": false
 }
