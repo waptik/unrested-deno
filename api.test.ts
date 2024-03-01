@@ -1,7 +1,8 @@
 // TODO: implement tests from https://github.com/johannschopplich/unrested/blob/main/test/index.test.ts
-import { assertEquals, assertExists } from "@std/assert/mod.ts";
-import "@std/dotenv/load.ts";
-import { auth, createApi } from "./mod.ts";
+
+import { createApi } from "./api.ts";
+import { auth } from "./auth.ts";
+import { assertEquals, assertExists } from "./deps.ts";
 
 type Todo = {
   userId: number;

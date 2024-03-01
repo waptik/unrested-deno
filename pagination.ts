@@ -1,3 +1,43 @@
+// Offset Pagination:
+
+import { decodeBase64, encodeBase64 } from "./deps.ts";
+
+export function encodeOffsetCursor(offset: number): string {
+  return encodeBase64(`offset::${offset}`);
+}
+
+export function decodeOffsetCursor(cursor: string): number {
+  const decoded = new TextDecoder().decode(decodeBase64(cursor));
+  const [type, value] = decoded.split("::");
+  if (type === "offset") return parseInt(value, 10);
+  throw new Error("Invalid cursor");
+}
+
+// Cursor Pagination:
+
+export function encodeCursorCursor(cursor: string): string {
+  return encodeBase64(`cursor::${cursor}`);
+}
+
+export function decodeCursorCursor(cursor: string): string {
+  const decoded = new TextDecoder().decode(decodeBase64(cursor));
+  const [type, value] = decoded.split("::");
+  if (type === "cursor") return value;
+  throw new Error("Invalid cursor");
+}
+
+// Link Pagination:
+
+export function encodeLinkCursor(url: string): string {
+  return encodeBase64(`link::${url}`);
+}
+
+export function decodeLinkCursor(cursor: string): string {
+  const decoded = new TextDecoder().decode(decodeBase64(cursor));
+  const [type, value] = decoded.split("::");
+  if (type === "link") return value;
+  throw new Error("Invalid cursor");
+}
 // inspired by https://blog.apideck.com/abstracting-pagination-across-third-party-apis
 
 export interface PaginationOptions {
